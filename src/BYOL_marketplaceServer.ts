@@ -6,7 +6,7 @@ import * as MarketplaceServer from "./BYOL_marketplaceServer"
 
 
 
-const licenseServerURL: string = "https://mskoldlicenseserver2.azurewebsites.net";
+
 
 interface ISubscriptionPayLoad {
     subscription: IMarketplaceServer.ISubscriptionInfo;
@@ -18,16 +18,17 @@ interface IPlansPayload {
 
 export class chargeBeeMarketplaceService implements IMarketplaceServer.IMarketplaceService {
     public API_key: string = ""
-
-    constructor(apiKey: string) {
+    public licenseServerURL: string = "";
+    constructor(url:string, apiKey: string) {
         this.API_key = apiKey;
+        this.licenseServerURL = url;
     }
 
     public GetSubscription(subscription: string): IPromise<IMarketplaceServer.ISubscriptionInfo> {
         var deferred = $.Deferred<IMarketplaceServer.ISubscriptionInfo>();
 
         console.log("GetSubscription", subscription);
-        $.getJSON(licenseServerURL + "/api/Subscription/" + subscription + this.API_key).then(
+        $.getJSON(this.licenseServerURL + "/api/Subscription/" + subscription + this.API_key).then(
             data => {
                 console.log("GetSubscription response", data)
                 if (data != null && data.subscription!=null) {
@@ -50,12 +51,12 @@ export class chargeBeeMarketplaceService implements IMarketplaceServer.IMarketpl
         var deferred = $.Deferred<IMarketplaceServer.IInvoice[]>();
 
         console.log("GetSubscriptionInvocies", subscription);
-        $.getJSON(licenseServerURL + "/api/Subscription/" + subscription + "/Invoices" + this.API_key).then(
+        $.getJSON(this.licenseServerURL + "/api/Subscription/" + subscription + "/Invoices" + this.API_key).then(
             data => {
                 console.log("GetSubscription response", data);
 
                 data.forEach(i => {
-                    i.url = licenseServerURL + "/api" + i.url + self.API_key;
+                    i.url = this.licenseServerURL + "/api" + i.url + self.API_key;
                     i.date = new Date(i.date);
                     i.dueDate = new Date(i.dueDate);
                 });
@@ -85,7 +86,7 @@ export class chargeBeeMarketplaceService implements IMarketplaceServer.IMarketpl
         try {
             console.log("ChargeBee GetPlans");
             
-            $.getJSON(licenseServerURL + "/api/Plans"+ this.API_key).then(
+            $.getJSON(this.licenseServerURL + "/api/Plans"+ this.API_key).then(
                 data => {
                     console.log("GetPlans response", data);
                    
@@ -144,7 +145,7 @@ export class chargeBeeMarketplaceService implements IMarketplaceServer.IMarketpl
             try {
                 console.log("ChargeBee CreatSubscription");
                 $.ajax({
-                    url: licenseServerURL + "/api/CreateSubscription" + self.API_key,                    
+                    url: this.licenseServerURL + "/api/CreateSubscription" + self.API_key,                    
                     type: 'POST',
                     contentType: "application/json",
                     data: dataObj,
@@ -175,7 +176,7 @@ export class chargeBeeMarketplaceService implements IMarketplaceServer.IMarketpl
         try {
             console.log("ChargeBee UpdateSubscription");
             $.ajax({
-                url: licenseServerURL + "/api/UpdateSubscription" + this.API_key,
+                url: this.licenseServerURL + "/api/UpdateSubscription" + this.API_key,
                 type: 'POST',
                 contentType: "application/json",
                 data: dataObj,
@@ -203,7 +204,7 @@ export class chargeBeeMarketplaceService implements IMarketplaceServer.IMarketpl
         try {
             console.log("ChargeBee CancelSubscription");
             $.ajax({
-                url: licenseServerURL + "/api/CancelSubscription" + this.API_key,
+                url: this.licenseServerURL + "/api/CancelSubscription" + this.API_key,
                 //url: "http://localhost:7071" + "/api/CreateSubscription", //?code=tp/9iwa9GNeeOeUeawMWZL3ymhnWED8L/vdHriFgFVOrweYrMU8HWw==",
                 type: 'POST',
                 contentType: "application/json",
