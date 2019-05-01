@@ -1,0 +1,399 @@
+﻿
+<!DOCTYPE html>
+<html style="background-color:inherit;height:100%;" >
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Export </title>
+    <link rel="stylesheet" href="css/export.css" />
+    <!--Styles for purchase hub-->
+    <link rel="stylesheet" href="css/purchase.css" />
+
+
+
+    <script src="sdk/scripts/ai.1.0.7.min.js"></script>
+    <script src="sdk/scripts/VSS.SDK.js"></script>
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="sdk/scripts/jquery.autocomplete.js"></script>
+
+        <script type="text/javascript">
+            VSS.init({
+                explicitNotifyLoaded: true,
+                usePlatformScripts: true,
+                usePlatformStyles: true,
+                moduleLoaderConfig: {
+                    paths: {
+                        "scripts/": "scripts/",
+                         }
+                }
+            })
+
+            // Wait for the SDK to be initialized
+            console.log("before VSS.ready");
+            VSS.ready(function () {
+                console.log("before VSS.require");
+                VSS.require(["scripts/EnhancedExport"], function (app) {
+                console.log("before VSS.checkLicRegisterTabNoLic");
+                app.checkLicRegisterTabNoLic();
+                VSS.notifyLoadSucceeded();
+        });
+});
+
+
+
+    </script>
+
+    <style>
+        body {
+            font-size: 14px;
+        }
+
+        h1 {
+            margin-top: 0px;
+            font-family: "Segoe UI Web (West European)","Segoe UI",-apple-system,BlinkMacSystemFont,"Roboto","Helvetica Neue",sans-serif;
+            font-size: 28px;
+            font-weight: 100;
+        }
+
+        h2 {
+            margin-bottom: 6px;
+            font-family: "Segoe UI Web (West European)","Segoe UI",-apple-system,BlinkMacSystemFont,"Roboto","Helvetica Neue",sans-serif;
+            font-size: 20px;
+            font-weight: 100;
+        }
+
+        .purchaseNow {
+            padding: 10px;
+            margin: 10px;
+            background-color: rgb(26, 188, 156);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            width: 200px;
+            text-align: center;
+        }
+
+    </style>
+
+</head>
+
+
+<body style="background-color:inherit;height:100%;margin-left:10px;margin-right:10px;">
+    <div id="tabExt">
+        PLACE YOUR EXTENSION HTML HERE
+    </div>
+
+
+    <div id="tabNoLicens" style="display:none;overflow:auto">
+        PLACE THE PAGE FOR NON LICENSED USERS HERE 
+    </div>
+    <div id="loading" style="text-align:center;display:none">
+        <p />
+        <h1>Validating licens</h1>
+    </div>
+
+    <div id="dlgPurchaseFlow" style="display:none">
+
+
+        <div id="main" style="position: absolute;top: 0px;bottom: 0px;overflow:auto ;left:0px;right: 12px;">
+            <div class="hub-pivot">
+                <div class="views tabsContainer">
+
+                    <ul class="empty pivot-view enhance work-admin-pivot" id="TabContainer">
+                        <li title="1) Select Plan " id="tabSelectPlan" data-id="templates" class="selected"><a href="#_a=templatesAdmin">1) Select Plan</a></li>
+                        <li title="2) Select quantity " id="tabQuantity" data-id="decorators"><a href="#_a=decorators">2) Select Quantity</a></li>
+                        <li title="3) Checkout" id="tabCheckOut" data-id="library"><a href="#_a=Library">3) Checkout</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="tab-plans-content" class="tab">
+                Select plan
+
+                <div class="plan" id="planTemplate" style="display:none;">
+
+                    <h3>{p.priceText}</h3>
+                    <div class="plan-name">
+                        {p.name}
+                    </div>
+                    <div class="plan-features">
+                        {p.description}
+                    </div>
+                    <div class="footer">
+                        <Button text="Select" />
+                    </div>
+                </div>
+
+                <div id="planListContainer" class="plansContainer"> </div>
+            </div>
+
+            <div id="tab-quantity-content" class="tab">
+                <h1>Select Quantity for plan {p.name}</h1>
+
+                <div style="display:flex;  flex-direction: row;">
+                    <div style="display:flex;  flex-direction: column;">
+                        <div style="display:flex;">
+                            <label htmlFor="quantity">Number of users</label>
+                            <select name="quantity" id="quantity"></select>
+                        </div>
+                        <div style="display:flex;">
+                            <h1>Total $<span id="total"></span></h1>
+
+                        </div>
+                    </div>
+
+                </div>
+                <button id="cmdNext">Proceed to Checkout</button>
+                <button id="cmdUpdate">Change Quantity</button>
+            </div>
+            <div id="tab-cancel-content" class="tab">
+                <h1>You are about to cancel the subscription {p.name}</h1>
+
+                <button id="cmdCancel">Cancel Subscription</button>
+            </div>
+
+            <div id="tab-checkout-content" class="tab">
+
+                <div style="display:flex; flex-direction:row">
+                    <div style="display:flex,">
+                        <div class="form">
+                            <div class="formRow">
+                                <div class="formCell">
+                                    <label htmlFor="firstName">First name</label>
+                                    <input type="text" name="firstName" id="firstName" value={firstName} class="RegisterForm" />
+                                </div>
+                                <div class="formCell">
+                                    <label htmlFor="lastName">Last name</label>
+                                    <input type="text" name="lastName" id="lastName" value={lastName} class="RegisterForm" />
+                                </div>
+                            </div>
+                            <div class="formRow">
+                                <div class="formCell">
+                                    <label htmlFor="email">Email</label>
+                                    <input type="email" name="email" id="email" value={email} class="RegisterForm" />
+                                </div>
+                            </div>
+
+                            <div class="formRow">
+                                <div class="formCell">
+                                    <label htmlFor="company">Company</label>
+                                    <input type="text" name="company" id="company" value="{company}" class="RegisterForm" />
+                                </div>
+                            </div>
+                            <div class="formRow">
+                                <div class="formCell">
+
+                                    <label htmlFor="company">Adress</label>
+                                    <input type="text" name="adr1" id="adr1" value="{adr1}" class="RegisterForm" />
+                                    <input type="text" name="adr2" id="adr2" value="{adr2}" class="RegisterForm" />
+                                </div>
+                            </div>
+
+
+                            <div class="formRow">
+                                <div class="formCell">
+                                    <label htmlFor="company">Country</label>
+                                    <input type="text" name="country" id="country" value="{country}" class="RegisterForm" />
+                                </div>
+                                <div class="formCell">
+                                    <label htmlFor="company">City</label>
+                                    <input type="text" name="city" id="city" value="{city}" class="RegisterForm" />
+                                </div>
+
+                                <div class="formCell">
+                                    <label htmlFor="company">Zip/Postal number</label>
+                                    <input type="text" name="zip" id="zip" value="{zip}" class="RegisterForm" />
+                                </div>
+                            </div>
+                            <div class="formRow">
+                                <div class="formCell">
+                                    <label htmlFor="vat">VAT</label>
+                                    <input type="text" name="vat" id="vat" value={VAT} class="RegisterForm" />
+                                </div>
+                            </div>
+                            <div class="formRow">
+                                <div class="formCell">
+                                    <label htmlFor="creditCard">Credit card</label>
+
+                                    <div id="creditCard"></div>
+                                    <div id="card-errors" role="alert"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="cmdSend">Purchase Now</button>
+                    </div>
+                    <div style="display:flex,">
+                        <div id="yourBuying">
+                            <h2>Your are buying: </h2>
+                            <h2>{licens} for {price} </h2>
+                        </div>
+                    </div>
+                </div>
+                <button id="debug">Debug</button>"
+            </div>
+            <div id="tab-startTrial-content" class="tab">
+                <h1>Register to start the free trial</h1>
+                <div style="display:flex; flex-direction:row">
+                    <div style="display:flex,">
+                        <div class="form">
+                            <div class="formRow">
+                                <div class="formCell">
+                                    <label htmlFor="firstName">First name</label>
+                                    <input type="text" name="firstName" id="firstName" value={firstName} class="RegisterForm" />
+                                </div>
+                                <div class="formCell">
+                                    <label htmlFor="lastName">Last name</label>
+                                    <input type="text" name="lastName" id="lastName" value={lastName} class="RegisterForm" />
+                                </div>
+                            </div>
+                            <div class="formRow">
+                                <div class="formCell">
+                                    <label htmlFor="email">Email</label>
+                                    <input type="email" name="email" id="email" value={email} class="RegisterForm" />
+                                </div>
+                            </div>
+
+                            <div class="formRow">
+                                <div class="formCell">
+                                    <label htmlFor="company">Company</label>
+                                    <input type="text" name="company" id="company" value="{company}" class="RegisterForm" />
+                                </div>
+                            </div>
+
+                        </div>
+                        <button id="cmdStartTrial">Start Free trial</button>
+                    </div>
+                </div>
+            </div>
+            <div id="tab-welcome-content" class="tab">
+                <h1>Welcome </h1>
+                You have successsfully purchased a license for Enhanced ExportPro. We hope you will find the product usefull and are happy to assist you with any issues you might encounter.
+
+                <div id="assignLicense">
+                    <h4>To use the extension, please assign user to the purchased licenses</h4>
+                    Paste the email adresses:
+                    <textarea id="txtUsers"></textarea>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <div id="dlgManageLicensHub" style="display:none">
+
+
+        <div id="main" style="position: absolute;top: 0px;bottom: 0px;overflow:auto ;left:0px;right: 12px;">
+            <!--
+             <div class="hub-pivot">
+                 <div class="views tabsContainer">
+
+                     <ul class="empty pivot-view enhance work-admin-pivot" id="TabContainer">
+                         <li title="1) Select Plan " id="tabSelectPlan" data-id="templates" class="selected"><a href="#_a=templatesAdmin">1) Select Plan</a></li>
+                         <li title="2) Select quantity " id="tabQuantity" data-id="decorators"><a href="#_a=decorators">2) Select Quantity</a></li>
+                         <li title="3) Checkout" id="tabCheckOut" data-id="library"><a href="#_a=Library">3) Checkout</a></li>
+                     </ul>
+                 </div>
+             </div>
+            -->
+            <div id="tab-directory-content" class="tab">
+                <h4>Availble subscriptions</h4>
+
+                <div class="licensPool" id="licensPoolTemplate" style="display:none;">
+                    <div style="display:flex;flex-direction:column;font-size:12pt;">
+                        <div tyle="display:flex;">
+                            <a id="lnkName" href="#"><span id="poolName"></span></a> <span id="poolState"></span>    <span id="planName"></span><br />
+                            <span id="planDesc"></span>
+                        </div>
+                        <div style="display:flex;">
+                            <img id="imgOwner" src="" class="identity-image identity-picture small-identity" />
+                            <span id="ownerName"></span>
+
+                        </div>
+                        <div style="display:flex;text-align:right">
+                            <div id="poolUserDetails">
+                                <div id="poolUsageSummary" style="display:inline"></div> | <a id="lnkRequestLicens" href="#">Request a licens</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="poolListContainer" class="licensPoolsContainer"> </div>
+
+                <div class="footer" style="position:absolute;bottom:6px;">
+                    <Button id="cmdNewPool" text="Buy additional subscription">Buy additional subscription</Button>
+                    <Button id="cmdTrial" text="Buy additional subscription">Start free trial</Button>
+                </div>
+            </div>
+
+            <div id="tab-licenspool-content" class="tab">
+                <div id="poolDetails">
+                    <label>State:</label><div id="poolState"></div>  <label>Owner:</label><div id="poolOwner"></div> <label>Plan:</label> <div id="poolPlan">
+                    </div>
+                    <br />
+                    <div id="useageSummaryRow" style="display:inline-block"></div> | <a href="#" id="lnkChangeQuantity">Change Quantity</a>  | <a href="#" id="lnkChangeBillingDetails">Change Billing Details</a> | <a href="#" id="lnkCancelSubscription">Cancel Subscription</a><br />
+                    <div class="views tabsContainer" style="width:100%">
+
+                        <ul class="empty pivot-view enhance work-admin-pivot" id="TabContainer" style="margin-left: 0px;padding-left: 0px;">
+                            <li title="Users" id="tabPoolUsers" data-id="templates" class="selected"><a href="#_a=templatesAdmin">Users</a></li>
+                            <li title="Invoices" id="tabPoolInvoices" data-id="library"><a href="#_a=Library">Invoices</a></li>
+                            <li title="Settings" id="tabPoolSettings" data-id="library"><a href="#_a=Library">Settings</a></li>
+                        </ul>
+                    </div>
+                    <hr />
+                    <div id="licensPoolMain">
+                        <div id="tabUsers" class="tab">
+                            <div id="enterpriseUsers">
+                                The Enterprise licens doesnt require assigning users to licens.
+                            </div>
+                            <div id="namedUsers " style="display:flex;flex-direction:row;flex:100%">
+                                <div style="display:flex;flex:50%;">
+                                    <div style="display:inline-block">
+
+                                        <h4>Assigned users</h4><br />
+
+                                        <div id="peopleSearcher" style="border:2px solid;border-color:#D3E4F4;height:28px;width:400px">
+                                            <input type="text" id="txtSearchUser" placeholder="Search for user" style="border:0px;float:left;" />
+                                            <div id="searchResultContainer" class="identity-picker-dropdown identity-picker-fixed-position">
+                                                <ul id="searchResult" style="padding-left: 6px;"></ul>
+                                            </div>
+                                        </div>
+                                        <button id="cmdAddUsers">Add users</button>
+
+
+                                        <!--<div id="peopleSearchCtrl"></div> -->
+
+                                        <div id="gridAssignedUsers" style="position:absolute;top:240px;left:0px;bottom:12px;right:50%;"></div>
+
+                                    </div>
+                                </div>
+
+                                <div style="display:flex;flex:50%;">
+                                    <div style="display:inline-block">
+                                        <h4>Requested users</h4></br>
+                                        <button id="cmdPromote">Approve licens for selected users</button>
+                                        <div id="gridRequestedUsers" style="position:absolute;top:240px;left:50%;bottom:12px;right:0px;"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <button id="cmdSave" style="position:absolute;bottom: 12px;">Save</button>
+                        </div>
+                        <div id="tabInvoices" class="tab">
+                            <h4>Invoices </h4>
+                            <div id="gridInvoices" style="position:absolute;top:110px;left:0px;bottom:12px;right:0px;"></div>
+
+
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
